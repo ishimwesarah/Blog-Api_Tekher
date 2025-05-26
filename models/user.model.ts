@@ -34,6 +34,14 @@ class UserModel {
   );
   return rows[0] || null;
 }
+static async updatePassword(userId: number, newHashedPassword: string): Promise<void> {
+  const result = await pool.query(
+    'UPDATE users SET password_hash = $1 WHERE id = $2',
+    [newHashedPassword, userId]
+  );
 }
+
+}
+
 
 export default UserModel;

@@ -73,3 +73,47 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ message: 'Server error' });
   }
 };
+export const requestPasswordReset = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+
+    const user = await UserModel.findByEmail(email);
+    if (!user) {
+      res.status(404).json({ message: 'Email not found' });
+      return;
+    }
+
+    const resetToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '15m' });
+
+    // In production, you'd email this token with a link like:
+    // `https://your-app.com/reset-password?token=${resetToken}`
+    console.log(`Reset Token for ${email}: ${resetToken}`);
+
+    res.json({ message: 'Password reset token generated. Check your email (or console).' });
+  } catch (error) {
+    console.error('Password reset error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token, newPassword } = req.body;
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+    const user = await UserModel.findById(decoded.userId);
+
+    if (!user) {
+      res.status(400).json({ message: 'Invalid token or user does not exist' });
+      return;
+    }
+
+    const hashed = await hashPassword(newPassword);
+    await UserModel.updatePassword(user.id, hashed);
+
+    res.json({ message: 'Password has been reset successfully' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(400).json({ message: 'Invalid or expired token' });
+  }
+};
