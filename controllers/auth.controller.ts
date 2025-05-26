@@ -85,8 +85,7 @@ export const requestPasswordReset = async (req: Request, res: Response): Promise
 
     const resetToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '15m' });
 
-    // In production, you'd email this token with a link like:
-    // `https://your-app.com/reset-password?token=${resetToken}`
+    // Here you would send the reset token to the console
     console.log(`Reset Token for ${email}: ${resetToken}`);
 
     res.json({ message: 'Password reset token generated. Check your email (or console).' });
