@@ -11,6 +11,7 @@ interface User {
   otp_expiry: Date | null;
   reset_otp: string | null;
   reset_otp_expiry: Date | null;
+  role: string;
 }
 
 class UserModel {
@@ -19,13 +20,13 @@ class UserModel {
     return rows[0] || null;
   }
 
-  static async create(username: string, email: string, passwordHash: string): Promise<User> {
-    const { rows } = await pool.query(
-      'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING *',
-      [username, email, passwordHash]
-    );
-    return rows[0];
-  }
+ static async create(username: string, email: string, passwordHash: string, role: string = 'user'): Promise<User> {
+  const { rows } = await pool.query(
+    'INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING *',
+    [username, email, passwordHash, role]
+  );
+  return rows[0];
+}
 
   static async findById(id: number): Promise<User | null> {
     const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
@@ -74,6 +75,10 @@ class UserModel {
       [userId]
     );
   }
+  static async updateRole(userId: number, newRole: string): Promise<void> {
+  await pool.query('UPDATE users SET role = $1 WHERE id = $2', [newRole, userId]);
+}
+
 }
 
 export default UserModel;

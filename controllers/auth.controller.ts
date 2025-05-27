@@ -66,8 +66,10 @@ export const login = async (req: Request, res: Response) => {
       return res.status(403).json({ message: 'Account not verified' });
     }
 
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, {
+  expiresIn: '1h',
+});
+    res.json({ token, user: { id: user.id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
@@ -138,3 +140,23 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ message: 'Server error' });
   }
 };
+export const requestNewVerificationOTP = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const user = await UserModel.findByEmail(email);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (user.is_verified) {
+      return res.status(400).json({ message: 'Account is already verified' });
+    }
+
+    await sendVerificationOTP(user.id, user.email);
+
+    res.json({ message: 'New verification OTP sent to email' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
