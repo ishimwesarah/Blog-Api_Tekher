@@ -6,6 +6,11 @@ interface User {
   email: string;
   password_hash: string;
   created_at: Date;
+  is_verified: boolean;
+  verification_otp: string | null;
+  otp_expiry: Date | null;
+  reset_otp: string | null;
+  reset_otp_expiry: Date | null;
 }
 
 class UserModel {
@@ -28,20 +33,47 @@ class UserModel {
   }
 
   static async findProfileById(id: number): Promise<Omit<User, 'password_hash'> | null> {
-  const { rows } = await pool.query(
-    `SELECT id, username, email, created_at FROM users WHERE id = $1`,
-    [id]
-  );
-  return rows[0] || null;
-}
-static async updatePassword(userId: number, newHashedPassword: string): Promise<void> {
-  const result = await pool.query(
-    'UPDATE users SET password_hash = $1 WHERE id = $2',
-    [newHashedPassword, userId]
-  );
-}
+    const { rows } = await pool.query(
+      `SELECT id, username, email, created_at FROM users WHERE id = $1`,
+      [id]
+    );
+    return rows[0] || null;
+  }
 
-}
+  static async updatePassword(userId: number, newHashedPassword: string): Promise<void> {
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [
+      newHashedPassword,
+      userId,
+    ]);
+  }
 
+  static async setVerificationOTP(userId: number, otp: string, expiry: Date): Promise<void> {
+    await pool.query(
+      'UPDATE users SET verification_otp = $1, otp_expiry = $2 WHERE id = $3',
+      [otp, expiry, userId]
+    );
+  }
+
+  static async verifyUser(userId: number): Promise<void> {
+    await pool.query(
+      'UPDATE users SET is_verified = true, verification_otp = null, otp_expiry = null WHERE id = $1',
+      [userId]
+    );
+  }
+
+  static async setResetOTP(userId: number, otp: string, expiry: Date): Promise<void> {
+    await pool.query(
+      'UPDATE users SET reset_otp = $1, reset_otp_expiry = $2 WHERE id = $3',
+      [otp, expiry, userId]
+    );
+  }
+
+  static async clearResetOTP(userId: number): Promise<void> {
+    await pool.query(
+      'UPDATE users SET reset_otp = null, reset_otp_expiry = null WHERE id = $1',
+      [userId]
+    );
+  }
+}
 
 export default UserModel;

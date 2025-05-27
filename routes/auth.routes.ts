@@ -1,15 +1,23 @@
 import { Router } from 'express';
-import { register, login, getProfile,requestPasswordReset,
-  resetPassword } from '../controllers/auth.controller';
+import {
+  register,
+  login,
+  getProfile,
+  requestPasswordReset,
+  resetPassword,
+  verifyAccount 
+} from '../controllers/auth.controller';
 import { asyncHandler } from '../utils/asyncHandler';
 import { authenticate } from '../middlewares/auth.middleware';
 
-
 const router = Router();
 
-router.post('/register', register);
-router.post('/login', login);
+router.post('/register', asyncHandler(register));
+router.post('/login', asyncHandler(login));
 router.get('/', authenticate, asyncHandler(getProfile));
-router.post('/forgot-password', requestPasswordReset);
-router.post('/reset-password', resetPassword);
+router.post('/forgot-password', asyncHandler(requestPasswordReset));
+router.post('/reset-password', asyncHandler(resetPassword));
+router.post('/verify-email', asyncHandler(verifyAccount));
+
+
 export default router;
