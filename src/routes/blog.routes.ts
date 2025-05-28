@@ -2,12 +2,14 @@
 import { Router } from "express";
 import { authenticated } from "../middleware/auth.middleware";
 import { createPost, deletePost, getPosts, updatePost } from "../controllers/blog.controller";
+import { createPostSchema, updatePostSchema } from "../schemas/blog.schemas";
+import { validate } from "../middleware/validation.middleware";
 
 const router = Router();
 
-router.post("/add", authenticated, createPost);
+router.post("/add", authenticated,validate(createPostSchema), createPost);
 router.get("/", getPosts);
-router.put("/:id", authenticated, updatePost);
+router.put("/update/:id", authenticated,validate(updatePostSchema), updatePost);
 router.delete("/:id", authenticated, deletePost);
 
 export default router;

@@ -30,3 +30,11 @@ export const nameSchema = z
   .min(2, "Name must be at least 2 characters")
   .max(100, "Name must be less than 100 characters")
   .regex(/^[a-zA-Z\s]+$/, "Name can only contain letters and spaces");
+  
+
+  export const idParamSchemas = z.object({
+  id: z.string().uuid("Invalid ID format"), // or z.string().regex(...) for other ID formats
+});
+
+export const titleSchema = z.string().min(5, "Title should be at least 5 characters");
+export const contentSchema = z.string().min(10, "Content should be at least 10 characters");
