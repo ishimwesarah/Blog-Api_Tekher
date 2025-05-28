@@ -1,0 +1,29 @@
+import { DataSource } from 'typeorm';
+import * as dotenv from 'dotenv';
+import { User } from '../modals/user';
+import { Post } from '../modals/blog';  // Adjust path accordingly
+
+dotenv.config();
+
+export const AppDataSource = new DataSource({
+  type: 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432'),
+  username: process.env.DB_USERNAME || 'postgres',
+  password: process.env.DB_PASSWORD || '02032022',
+  database: process.env.DB_DATABASE || 'THE-OTHER',
+  synchronize: process.env.NODE_ENV !== 'production',
+  entities: [User, Post],  // <-- add Post here
+  migrations: ['src/migrations/**/*.ts'],
+  subscribers: ['src/subscribers/**/*.ts'],
+});
+
+export const initializeDatabase = async (): Promise<void> => {
+  try {
+    await AppDataSource.initialize();
+    console.log('Database connection established successfully');
+  } catch (error) {
+    console.error('Error during database initialization', error);
+    throw error;
+  }
+};
