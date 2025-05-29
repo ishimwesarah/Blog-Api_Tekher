@@ -8,6 +8,11 @@ import {
 } from "typeorm";
 import { User } from "./user"; // ✅ Make sure path is correct
 
+interface Author extends User {
+  id: number;
+  username: string;
+}
+
 @Entity()
 export class Post {
   @PrimaryGeneratedColumn()
@@ -20,7 +25,7 @@ export class Post {
   content!: string;
 
   @ManyToOne(() => User, (user) => user.posts)
-  author!: User;
+  author!: Author;
 
   @CreateDateColumn()
   created_at!: Date;

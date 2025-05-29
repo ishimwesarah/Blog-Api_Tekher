@@ -4,7 +4,8 @@ import {
   verifyEmail, 
   login, 
   forgotPassword, 
-  resetPassword 
+  resetPassword, 
+  resendVerificationEmail
 } from '../controllers/auth.controller';
 import { validate } from '../middleware/validation.middleware';
 import { 
@@ -12,7 +13,8 @@ import {
   verifyEmailSchema, 
   loginSchema, 
   forgotPasswordSchema, 
-  resetPasswordSchema 
+  resetPasswordSchema, 
+  ResendVerificationInput
 } from '../schemas/auth.schemas';
 
 const router: Router = express.Router();
@@ -22,5 +24,6 @@ router.post('/verify-email/:token', validate(verifyEmailSchema), verifyEmail);
 router.post('/login', validate(loginSchema), login);
 router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
 router.post('/reset-password/:token', validate(resetPasswordSchema), resetPassword);
+router.post('/resend-verification', validate(ResendVerificationInput), resendVerificationEmail);
 
 export default router;

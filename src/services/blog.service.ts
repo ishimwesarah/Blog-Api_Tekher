@@ -4,6 +4,9 @@ import { Post } from "../modals/blog";
 import { User } from "../modals/user";
 
 export class PostService {
+  activatePost(postId: number, user: User) {
+    throw new Error("Method not implemented.");
+  }
   private postRepo = AppDataSource.getRepository(Post);
 
   async createPost(title: string, content: string, author: User) {
@@ -35,4 +38,5 @@ export class PostService {
 
     return await this.postRepo.remove(post);
   }
+  
 }

@@ -13,7 +13,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || '02032022',
   database: process.env.DB_DATABASE || 'THE-OTHER',
   synchronize: process.env.NODE_ENV !== 'production',
-  entities: [User, Post],  // <-- add Post here
+  entities: [User, Post],  
   migrations: ['src/migrations/**/*.ts'],
   subscribers: ['src/subscribers/**/*.ts'],
 });

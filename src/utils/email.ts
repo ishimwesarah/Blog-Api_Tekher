@@ -55,7 +55,7 @@ export async function sendVerificationEmail(email: string, link: string) {
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
 
           <p style="font-size: 14px; color: #aaa; text-align: center;">
-            &copy; ${new Date().getFullYear()} Your Company Name. All rights reserved.
+            &copy; ${new Date().getFullYear()} Sarah App. All rights reserved.
           </p>
         </div>
       </div>
@@ -117,7 +117,7 @@ export const sendResetPasswordEmail = async (email: string, resetLink: string) =
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
 
           <p style="font-size: 14px; color: #aaa; text-align: center;">
-            &copy; ${new Date().getFullYear()} Your Company Name. All rights reserved.
+            &copy; ${new Date().getFullYear()} Sarah App. All rights reserved.
           </p>
         </div>
       </div>
@@ -185,7 +185,7 @@ export async function sendEmailVerifiedConfirmation(email: string) {
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
 
           <p style="font-size: 14px; color: #aaa; text-align: center;">
-            &copy; ${new Date().getFullYear()} Your Company Name. All rights reserved.
+            &copy; ${new Date().getFullYear()} Sarah App. All rights reserved.
           </p>
         </div>
       </div>

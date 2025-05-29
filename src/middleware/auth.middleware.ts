@@ -1,3 +1,4 @@
+import { error } from 'console';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
@@ -22,7 +23,12 @@ export const authenticated = (
   const token = authHeader?.split(' ')[1];
   
   if (!token) {
-    res.status(401).json({ message: 'You are not authorized' });
+    res.status(401).json({ 
+      status: "error",
+      code: 401,
+      message: 'You are not authorized',
+    error: [
+        'No token provided. Please provide a valid JWT token in the Authorization header.'     ] });
     return;
   }
   
@@ -31,6 +37,9 @@ export const authenticated = (
     req.user = decoded;
     next();
   } catch (err) {
-    res.status(403).json({ message: 'Token is expired or inavalid' });
+    res.status(403).json({ 
+      status: "error",
+      code: 401,
+      message: 'Token is expired or inavalid' });
   }
 };

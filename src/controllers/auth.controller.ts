@@ -180,4 +180,32 @@ export const resetPassword = asyncHandler(async (
       message: 'Password reset successfully'
     });
   });
+  // Resend Verification Email
+export const resendVerificationEmail = asyncHandler(async (
+  req: AuthenticatedRequest, 
+  res: Response<ApiResponse>,
+  next: NextFunction
+) => {
+  const { email } = req.body;
+
+  const user = await userService.findByEmail(email);
+  if (!user) {
+    throw new NotFoundError('User');
+  }
+
+  if (user.isVerified) {
+    throw new ConflictError('Email is already verified');
+  }
+
+  const token = generateVerifyToken({ userId: user.id, email: user.email });
+  const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${token}`;
+
+  await sendVerificationEmail(user.email, verifyLink);
+
+  res.status(200).json({
+    success: true,
+    message: 'A new verification link has been sent to your email',
+  });
+});
+
   

@@ -8,8 +8,9 @@ import { validate } from "../middleware/validation.middleware";
 const router = Router();
 
 router.post("/add", authenticated,validate(createPostSchema), createPost);
-router.get("/", getPosts);
-router.put("/update/:id", authenticated,validate(updatePostSchema), updatePost);
-router.delete("/:id", authenticated, deletePost);
+router.get("/get", getPosts);
+router.put("/:id", authenticated,validate(updatePostSchema), updatePost);
+router.delete("/delete/:id", authenticated, deletePost);
+
 
 export default router;
