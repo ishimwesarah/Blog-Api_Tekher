@@ -6,6 +6,8 @@ import { AuthenticatedRequest } from "../types/common.types";
 
 const postService = new PostService();
 
+
+
 export const createPost = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { title, content } = req.body;
@@ -30,23 +32,33 @@ export const createPost = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
-export const getPosts = async (_: Request, res: Response) => {
+export const getPosts = async (req: Request, res: Response) => {
+   const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10; ;
   try {
-    const posts = await postService.getAllPosts();
+    const { posts, total }  = await postService.getAllPosts(page, limit);
     res.status(200).json({
-      status: "success",
-      Code: 200,
-      message: "Posts retrieved successfully",
-      data: posts.map(post => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        author: {
-          id: post.author.id,
-          username: post.author.username,
-        }
-      }))
+  status: "success",
+  Code: 200,
+  message: "Posts retrieved successfully",
+  data: {
+    post: posts.map(post => ({
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      author: {
+        id: post.author.id,
+        username: post.author.username,
+      }
+    }))
+  },
+  meta: {
+    total: total,   
+    page: page,      
+    limit: limit,    
+  }
     });
+
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -173,3 +185,35 @@ export async function inactivatePost(req: AuthenticatedRequest, res: Response): 
     });
   }
 }
+
+export async function getPostById(req: Request, res: Response): Promise<void> {
+  try {
+    const postId = parseInt(req.params.id);
+
+    const existingPost = await postService.getPostById(postId);
+    if (!existingPost) {
+      res.status(404).json({
+        status: "error",
+        Code: 404,
+        message: "Post not found",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: "success",
+      Code: 200,
+      data: existingPost,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      Code: 500,
+      message: "Failed to get post",
+      error,
+    });
+  }
+}
+
+
+

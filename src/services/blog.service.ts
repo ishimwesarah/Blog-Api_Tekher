@@ -14,9 +14,15 @@ export class PostService {
     return await this.postRepo.save(post);
   }
 
-  async getAllPosts() {
-    return await this.postRepo.find({ relations: ['author'] });
-  }
+  async getAllPosts(page: number, limit: number ) {
+    const [posts, total] =  await this.postRepo.findAndCount(
+      { relations: ['author'],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { posts, total};
+}
 
   async getPostById(id: number) {
     return await this.postRepo.findOne({ where: { id }, relations: ['author'] });

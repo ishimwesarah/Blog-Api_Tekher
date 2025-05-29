@@ -3,6 +3,7 @@ import { z } from "zod";
 export const idParamSchema = z.object({
   id: z.string().regex(/^\d+$/, "ID must be a valid number").transform(Number),
 });
+const anyStickerRegex = /^[\p{L}\p{N}\p{P}\p{Zs}\p{Extended_Pictographic}]*$/u;
 
 export const paginationSchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).default("1"),
@@ -36,5 +37,10 @@ export const nameSchema = z
   id: z.string().uuid("Invalid ID format"), // or z.string().regex(...) for other ID formats
 });
 
-export const titleSchema = z.string().min(5, "Title should be at least 5 characters");
+export const titleSchema = z
+.string()
+.min(5, "Title should be at least 5 characters")
+.max(200, "Title should be at most 200 characters")
+.regex(anyStickerRegex, "Title can only contain letters, numbers, punctuation, and spaces");
+
 export const contentSchema = z.string().min(10, "Content should be at least 10 characters");
