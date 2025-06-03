@@ -13,10 +13,10 @@ export class UserService {
     return await this.userRepository.findOneBy({ id });
   }
 
-  async findByName(name: string): Promise<User[]> {
+  async findByName(username: string): Promise<User[]> {
     return await this.userRepository
       .createQueryBuilder('user')
-      .where('LOWER(user.name) LIKE LOWER(:name)', { name: `%${name}%` })
+      .where('LOWER(user.username) LIKE LOWER(:username)', { username: `%${username}%` })
       .getMany();
   }
 

@@ -199,15 +199,42 @@
       }
     },
     "/auth/login": {
-      "post": {
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
+  "post": {
+    "description": "Login with email and password",
+    "parameters": [
+      {
+        "name": "body",
+        "in": "body",
+        "required": true,
+        "schema": {
+          "type": "object",
+          "required": ["email", "password"],
+          "properties": {
+            "email": {
+              "type": "string",
+              "example": "user@example.com"
+            },
+            "password": {
+              "type": "string",
+              "example": "Password123!"
+            }
           }
         }
       }
-    },
+    ],
+    "responses": {
+      "200": {
+        "description": "Login successful"
+      },
+      "401": {
+        "description": "Invalid credentials"
+      }
+    }
+  }
+}
+,
+
+
     "/auth/forgot-password": {
       "post": {
         "description": "",
