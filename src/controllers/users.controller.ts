@@ -110,6 +110,7 @@ export const deleteUser = asyncHandler(async (
   }
   
   res.json({
+    
     success: true,
     message: 'User deleted successfully'
   });

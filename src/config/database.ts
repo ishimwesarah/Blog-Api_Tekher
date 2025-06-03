@@ -27,3 +27,4 @@ export const initializeDatabase = async (): Promise<void> => {
     throw error;
   }
 };
+
