@@ -1,7 +1,11 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
 import { User } from '../modals/user';
-import { Post } from '../modals/blog';  // Adjust path accordingly
+import { Post } from '../modals/blog';
+import { Recipe } from "../modals/Recipe";  
+import { Like } from "../modals/Like";
+import { Comment } from "../modals/Comment";
+import { ShoppingListItem } from "../modals/ShoppingListItem";
 
 dotenv.config();
 
@@ -13,7 +17,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || '02032022',
   database: process.env.DB_DATABASE || 'THE-OTHER',
   synchronize: process.env.NODE_ENV !== 'production',
-  entities: [User, Post],  
+  entities: [User, Post, Recipe, Like, Comment, ShoppingListItem],  
   migrations: ['src/migrations/**/*.ts'],
   subscribers: ['src/subscribers/**/*.ts'],
 });

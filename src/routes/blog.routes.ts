@@ -1,17 +1,43 @@
-// src/routes/post.routes.ts
 import { Router } from "express";
+import {
+  createPost,
+  getPosts,
+  getPostById,
+  updatePost,
+  deletePost,
+} from "../controllers/blog.controller";
 import { authenticated } from "../middleware/auth.middleware";
-import { createPost, deletePost, getPosts, updatePost, getPostById } from "../controllers/blog.controller";
-import { createPostSchema, updatePostSchema } from "../schemas/blog.schemas";
 import { validate } from "../middleware/validation.middleware";
+import upload from "../middleware/upload"; // Make sure this is imported
+import { createPostSchema, updatePostSchema } from "../schemas/blog.schemas";
 
 const router = Router();
 
-router.post("/add", authenticated,validate(createPostSchema), createPost);
-router.get("/get", getPosts);
-router.get("/get/:id", getPostById);
-router.put("/:id", authenticated,validate(updatePostSchema), updatePost);
-router.delete("/delete/:id", authenticated, deletePost);
+// --- PUBLIC ROUTES ---
+router.get("/get", getPosts); // Matching your path `/posts/get`
+router.get("/:id", getPostById);
 
+// --- PROTECTED ROUTES WITH CORRECT MIDDLEWARE ORDER ---
+
+// Route for POST /posts/add
+router.post(
+  "/add",
+  authenticated, // 1. First, check if the user is logged in.
+  upload.single("image"), // 2. SECOND, process the file upload. This populates `req.file` and `req.body`.
+  validate(createPostSchema), // 3. THIRD, validate the `req.body` which now has data.
+  createPost // 4. Finally, run the controller logic.
+);
+
+// Route for PUT /posts/:id
+router.put(
+  "/:id",
+  authenticated,
+  upload.single("image"), // Also handle optional file uploads for updates.
+  validate(updatePostSchema),
+  updatePost
+);
+
+// Delete route doesn't need upload middleware.
+router.delete("/:id", authenticated, deletePost);
 
 export default router;
