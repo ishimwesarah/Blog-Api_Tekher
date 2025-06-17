@@ -61,20 +61,18 @@ export const deleteComment = asyncHandler(async (
   next: NextFunction
 ) => {
   const commentId = parseInt(req.params.commentId, 10);
-  const user = req.user!; // The user trying to make the change
+  const user = req.user!; 
 
   const comment = await commentService.findById(commentId);
   if (!comment) {
     throw new NotFoundError("Comment not found");
   }
 
-  // 🚨 PERMISSION CHECK: The original author OR an admin can delete a comment.
   if (comment.author.id !== user.id && user.role !== 'admin') {
     throw new ForbiddenError("You are not authorized to delete this comment");
   }
 
   await commentService.delete(commentId);
 
-  // A 204 No Content response is perfect for successful deletions.
   res.status(204).send();
 });

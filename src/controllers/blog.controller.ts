@@ -5,11 +5,10 @@ import { sendEmail } from "../utils/email";
 import { AuthenticatedRequest } from "../types/common.types";
 
 const postService = new PostService();
-
-// --- CREATE POST (Corrected) ---
 export const createPost = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { title, content } = req.body;
+    const { title } = req.body;
+    const content = JSON.parse(req.body.content);
     const user = req.user!;
 
     if (!req.file) {
@@ -19,7 +18,7 @@ export const createPost = async (req: AuthenticatedRequest, res: Response) => {
         Code: 400,
         message: "A hero image is required for the post.",
       });
-      return; // A simple return here is fine to exit the function, or just let the `if` block end.
+      return; 
     }
 
     const imageUrl = req.file.path;
@@ -27,7 +26,6 @@ export const createPost = async (req: AuthenticatedRequest, res: Response) => {
     
     await sendEmail(user.email, "New Post Created", `Your post "${title}" has been created.`);
 
-    // No `return` keyword needed here either.
     res.status(201).json({
       status: "success",
       Code: 201,
@@ -35,8 +33,6 @@ export const createPost = async (req: AuthenticatedRequest, res: Response) => {
       data: post,
     });
   } catch (error) {
-    // This is for unhandled errors. It's better to use `next(error)`
-    // if you have an error handling middleware.
     res.status(500).json({
       status: "error",
       Code: 500,
@@ -46,7 +42,6 @@ export const createPost = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
-// --- GET ALL POSTS (Corrected) ---
 export const getPosts = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
@@ -64,7 +59,7 @@ export const getPosts = async (req: Request, res: Response) => {
           title: post.title,
           content: post.content,
           imageUrl: post.imageUrl,
-          created_at: post.created_at, // <-- SEND THE RAW DATE OBJECT
+          created_at: post.created_at, 
           author: {
             id: post.author.id,
             username: post.author.username,
@@ -74,11 +69,10 @@ export const getPosts = async (req: Request, res: Response) => {
       meta: { total, page, limit }
     });
   } catch (error) {
-    // ... your error handling ...
+  
   }
 };
-// --- UPDATE POST (Corrected) ---
-// Changed the return type to Promise<void> for clarity.
+
 export async function updatePost(req: AuthenticatedRequest, res: Response): Promise<void> {
   try {
     const postId = parseInt(req.params.id);
@@ -88,12 +82,12 @@ export async function updatePost(req: AuthenticatedRequest, res: Response): Prom
     const existingPost = await postService.getPostById(postId);
     if (!existingPost) {
       res.status(404).json({ status: "error", Code: 404, message: "Post not found" });
-      return; // Exit after sending response
+      return; 
     }
 
     if (existingPost.author.id !== user.id && user.role !== "admin") {
       res.status(403).json({ status: "error", Code: 403, message: "Unauthorized to update this post" });
-      return; // Exit after sending response
+      return; 
     }
 
     if (req.file) {
@@ -117,7 +111,7 @@ export async function updatePost(req: AuthenticatedRequest, res: Response): Prom
   }
 }
 
-// --- ALL OTHER FUNCTIONS CORRECTED TO NOT RETURN `res.json()` ---
+
 
 export async function getPostById(req: Request, res: Response): Promise<void> {
   try {

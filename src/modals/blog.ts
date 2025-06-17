@@ -21,8 +21,11 @@ export class Post {
   @Column()
   title!: string;
 
-  @Column()
-  content!: string;
+  @Column({
+    type: "jsonb",
+    nullable: true, 
+  })
+  content?: object[];
    @Column({ nullable: true })
   imageUrl?: string;
 

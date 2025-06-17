@@ -31,7 +31,7 @@ export const validate = (schema: z.ZodSchema) => {
     }
 }
 
-//function that will help us validate out data 
+
 export const validateData = <T>(schema: z.ZodSchema<T>, data: unknown): T => {
     try {
       return schema.parse(data);

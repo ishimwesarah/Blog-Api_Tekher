@@ -7,6 +7,7 @@ export interface VerifyPayload {
 }
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; 
+const JWT_RESET_SECRET= process.env.JWT_RESET_SECRET|| 'garah02032022'
 
 export function generateJWT(user: User): string {
     return jwt.sign(
@@ -22,7 +23,7 @@ export function generateJWT(user: User): string {
   }
 
 export const generateResetToken = (email: string): string => {
-  return jwt.sign({ email }, JWT_SECRET!, { expiresIn: '15m' });
+  return jwt.sign({ email }, JWT_RESET_SECRET!, { expiresIn: '15m' });
 };
 
 export function generateVerifyToken(payload: VerifyPayload): string {

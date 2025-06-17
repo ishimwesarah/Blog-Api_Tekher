@@ -1,8 +1,14 @@
 import { Router } from 'express';
 import { toggleLike } from '../controllers/like.controller';
-import {authenticated } from '../middleware/auth.middleware'; 
+import { authenticated } from '../middleware/auth.middleware'; // Your 'protect' middleware
 
 const router = Router();
-// POST /api/recipes/:recipeId/like
-router.post('/like', authenticated, toggleLike);
+
+
+router.post(
+  '/:recipeId/like', 
+  authenticated, 
+  toggleLike
+);
+
 export default router;

@@ -43,4 +43,4 @@ export const titleSchema = z
 .max(200, "Title should be at most 200 characters")
 .regex(anyStickerRegex, "Title can only contain letters, numbers, punctuation, and spaces");
 
-export const contentSchema = z.string().min(10, "Content should be at least 10 characters");
+export const contentSchema = z.array(z.record(z.any())).min(1, 'Content cannot be empty')

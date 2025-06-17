@@ -158,18 +158,39 @@ export const forgotPassword = asyncHandler(async (
 
 // Reset Password
 export const resetPassword = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const { token }      = req.params;
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { token } = req.params;
     const { newPassword } = req.body;
 
-    // … (lookup user, hash password, update user)
+    // 1. Verify the Reset Token is valid and not expired
+    let payload: { email: string };
+    try {
+      payload = jwt.verify(token, process.env.JWT_RESET_SECRET!) as { email: string };
+    } catch (error) {
+      throw new UnauthorizedError('Invalid or expired password reset token.');
+    }
 
+    // 2. Find the user by the email from the token
+    const user = await userService.findByEmail(payload.email);
+    if (!user) {
+      throw new NotFoundError('User associated with this token no longer exists.');
+    }
+
+    // 3. --- ✅ HASH THE NEW PASSWORD ---
+    // This is the crucial step that was missing.
+    const saltRounds = 10; // Use the same salt rounds as your signup process
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // 4. Update the user in the database with the NEW, HASHED password
+    // We assume you have a `userService.update` method that can update any user property.
+    await userService.update(user.id, { password: hashedPassword });
+
+    // 5. Send the success response
     res.status(200).json({
       status : 'success',
       code   : 200,
-      message: 'Password reset successful',
+      message: 'Password has been reset successfully. You can now log in with your new password.',
     });
-    // ← no “return res.json(…)” so the function returns void
   }
 );
   // Resend Verification Email

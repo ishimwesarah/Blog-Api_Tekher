@@ -10,10 +10,10 @@ export const toggleLike = asyncHandler(async (
   res: Response<ApiResponse>,
   next: NextFunction
 ) => {
-  const recipeId = parseInt(req.params.recipeId, 10);
-  const userId = req.user!.id; // Get the ID of the logged-in user from the token.
+  const recipeId = parseInt(req.params.id, 10);
+  const userId = req.user!.id; 
 
-  // Call the service to either create or delete the like.
+  
   const result = await likeService.toggleLike(userId, recipeId);
 
   res.status(200).json({

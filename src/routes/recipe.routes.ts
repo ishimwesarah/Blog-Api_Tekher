@@ -4,6 +4,7 @@ import {authenticated } from '../middleware/auth.middleware'; // Import your aut
 import { validate } from '../middleware/validation.middleware'; // Import your Zod validation middleware
 import { createRecipeSchema, updateRecipeSchema } from '../schemas/recipe.schemas';
 import upload from '../middleware/upload';
+import { toggleLike } from '../controllers/like.controller';
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.post('/create', authenticated, upload.single('image'),validate(createReci
 
 router.put('/update/:id', authenticated,upload.single('image'), validate(updateRecipeSchema), updateRecipe);
 router.delete('/delete/:id', authenticated, deleteRecipe);
+router.post('/:id/like', authenticated, toggleLike);
 
 export default router;

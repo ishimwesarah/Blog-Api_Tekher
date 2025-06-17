@@ -5,7 +5,7 @@ export const createPostSchema = z.object({
   body: z.object({
     title: titleSchema,
     content: contentSchema,
-    // No authorId here; we'll get it from the token
+   
   }),
 });
 
