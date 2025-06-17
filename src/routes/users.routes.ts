@@ -4,7 +4,8 @@ import {
   search, 
   getById, 
   updateUser, 
-  deleteUser 
+  deleteUser, 
+  changeUserRole
 } from '../controllers/users.controller';
 import { authenticated } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/authorize';
@@ -13,7 +14,8 @@ import {
   getUserByIdSchema, 
   updateUserSchema, 
   deleteUserSchema, 
-  searchUsersSchema 
+  searchUsersSchema, 
+  changeRoleSchema
 } from '../schemas/user.schemas';
 
 const router: Router = express.Router();
@@ -43,6 +45,11 @@ router.delete('/:id',
   authorize(['admin']), 
   validate(deleteUserSchema), 
   deleteUser
+);
+router.patch('/:id/role', 
+  authorize(['super_admin']), // ONLY a super_admin can access this
+  validate(changeRoleSchema),
+  changeUserRole
 );
 
 export default router;

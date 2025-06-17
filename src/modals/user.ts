@@ -1,7 +1,7 @@
 import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Post } from './blog';
 
-export type UserRole = 'user' | 'admin';
+export type UserRole = 'user' | 'admin'| 'super_admin';
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
@@ -13,11 +13,13 @@ export class User {
   @Column({ length: 100, nullable: true, unique: true })
   email!: string;
 
-  @Column({ type: 'enum', enum: ['user', 'admin'], default: 'user' })
+  @Column({ type: 'enum', enum: ['user', 'admin', 'super_admin'], default: 'user' })
   role!: UserRole;
 
   @Column({ length: 255 })
   password!: string;
+  @Column({ type: 'text', nullable: true })
+  bio?: string;
 
   @Column({ default: false })    
   isVerified!: boolean;
@@ -30,8 +32,9 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt?: Date;
-  // inside User entity
-@OneToMany(() => Post, post => Post.author)
+ 
+@OneToMany(() => Post, post => post.author)
 posts: Post[] | undefined;
+
 
 }

@@ -3,17 +3,16 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { User } from "./user"; // ✅ Make sure path is correct
+import { User } from "./user"; // Ensure this path is correct
 
-interface Author extends User {
-  id: number;
-  username: string;
-}
+// The `Author` interface is fine for type-hinting, but we will use `User` in the class
+// for simplicity and consistency with the decorator.
 
-@Entity()
+@Entity("posts") // It's good practice to explicitly name your table
 export class Post {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -26,16 +25,23 @@ export class Post {
     nullable: true, 
   })
   content?: object[];
-   @Column({ nullable: true })
+
+  @Column({ nullable: true })
   imageUrl?: string;
 
-  @ManyToOne(() => User, (user) => user.posts)
-  author!: Author;
+
+  @ManyToOne(() => User, (user) => user.posts, {
+    onDelete: "SET NULL", 
+    eager: true, 
+  })
+  @JoinColumn({ name: "authorId" }) 
+  author!: User; 
 
   @CreateDateColumn()
   created_at!: Date;
 
   @UpdateDateColumn()
   updated_at!: Date;
-  static author: any;
+
+  // The duplicate `static author: any;` line has been removed.
 }

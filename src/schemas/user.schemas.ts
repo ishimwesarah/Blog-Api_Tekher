@@ -51,7 +51,14 @@ export const searchUsersSchema = z.object({
 export const deleteUserSchema = z.object({
   params: idParamSchema,
 });
-
+// ...
+export const changeRoleSchema = z.object({
+  body: z.object({
+    // Ensure the role being assigned is one of the valid roles
+    role: z.enum(['user', 'admin']), // A super_admin can only assign 'user' or 'admin' roles
+  }),
+});
+export type ChangeRoleInput = z.infer<typeof changeRoleSchema>;
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type GetUserByIdInput = z.infer<typeof getUserByIdSchema>;

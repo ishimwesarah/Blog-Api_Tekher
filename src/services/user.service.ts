@@ -7,7 +7,12 @@ export class UserService {
   private userRepository = AppDataSource.getRepository(User);
 
   async findAll(): Promise<User[]> {
-    return await this.userRepository.find();
+      return this.userRepository
+      .createQueryBuilder("user")
+      .loadRelationCountAndMap("user.postCount", "user.posts")
+      .orderBy("user.createdAt", "DESC")
+      .getMany();
+  
   }
 
   async findById(id: number): Promise<User | null> {

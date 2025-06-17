@@ -1,27 +1,25 @@
-// src/middleware/authorize.ts
-import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { User } from '../modals/user';
-
-interface AuthRequest extends Request {
-  user?: User
-}
-
-export const authorize = (allowedRoles: ('user' | 'admin')[]): RequestHandler => {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
-    
-    // If user is not authenticated at all
+import { Response, NextFunction } from "express";
+import { AuthenticatedRequest } from "../types/common.types";
+import { UserRole } from "../modals/user";
+import { ForbiddenError, UnauthorizedError } from "../utils/errors";
+export const authorize = (allowedRoles: UserRole[]) => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      res.status(401).json({ message: 'Not authenticated' });
-      return;
+      return next(new UnauthorizedError("Authentication required"));
     }
 
-    // If role is not authorized?
+    if (req.user.role === "super_admin") {
+      return next();
+    }
+
     if (!allowedRoles.includes(req.user.role)) {
-      res.status(403).json({ message: 'This User has insufficient permission' });
-      return;
+      return next(
+        new ForbiddenError(
+          `Your role ('${req.user.role}') is not authorized to access this resource.`
+        )
+      );
     }
 
-    // if everthing is ok
     next();
   };
 };

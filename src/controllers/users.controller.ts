@@ -7,6 +7,7 @@ import {
   SearchUsersInput, 
   DeleteUserInput 
 } from '../schemas/user.schemas';
+import { ChangeRoleInput } from '../schemas/user.schemas';
 import { AuthenticatedRequest, ApiResponse } from '../types/common.types';
 import { NotFoundError, ConflictError } from '../utils/errors';
 
@@ -113,5 +114,22 @@ export const deleteUser = asyncHandler(async (
     
     success: true,
     message: 'User deleted successfully'
+  });
+});
+
+export const changeUserRole = asyncHandler(async (
+  req: AuthenticatedRequest & ChangeRoleInput,
+  res: Response<ApiResponse>
+) => {
+  const { id } = req.params;
+  const { role } = req.body;
+
+  // The service just needs a generic update method.
+  const updatedUser = await userService.update(parseInt(id), { role });
+
+  res.status(200).json({
+    success: true,
+    message: "User role updated successfully",
+    data: { user: updatedUser },
   });
 });
