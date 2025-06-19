@@ -39,6 +39,8 @@ export const signup = asyncHandler(async (
         const newUser = await authService.create({ username, email, password, role });
         const token = generateVerifyToken({ userId: newUser.id, email: newUser.email });
         const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${token}`;
+         console.log("--- Verify  TOKEN ---");
+         console.log(token);
 
        await sendVerificationEmail(newUser.email, verifyLink);
        
@@ -79,7 +81,7 @@ export const verifyEmail = asyncHandler(async (
 
   // ✅ Send confirmation email after successful verification
   await sendEmailVerifiedConfirmation(user.email);
-
+  
   res.status(200).json({
     success: true,
     message: 'Email verified successfully',
@@ -146,8 +148,10 @@ export const forgotPassword = asyncHandler(async (
     }
   
     const token = generateResetToken(user.email);
-    const resetLink = `${process.env.RESET_PASSWORD_URL}/${token}`;
-  
+    const resetLink = `${process.env.MOBILE_APP_URL_SCHEME}reset-password/${token}`;
+   console.log("--- PASSWORD RESET TOKEN ---");
+  console.log(token);
+  console.log("----------------------------");
     await sendResetPasswordEmail(email, resetLink);
   
     res.status(200).json({
@@ -193,6 +197,22 @@ export const resetPassword = asyncHandler(
     });
   }
 );
+//Setup Account for a superAdmin
+export const setupAccount = asyncHandler(async (
+  req: Request,
+  res: Response<ApiResponse>
+) => {
+  const { token } = req.params;
+  const { newPassword } = req.body;
+
+  
+  await authService.setupUserAccount(token, newPassword);
+
+  res.status(200).json({
+    success: true,
+    message: "Your account has been successfully set up! You can now log in.",
+  });
+});
   // Resend Verification Email
 export const resendVerificationEmail = asyncHandler(async (
   req: AuthenticatedRequest, 

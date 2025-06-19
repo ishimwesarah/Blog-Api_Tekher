@@ -1,3 +1,4 @@
+// comment.controller.ts - Fixed parameter names
 import { Response, NextFunction } from 'express';
 import { CommentService } from '../services/comment.service';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -12,7 +13,7 @@ export const addCommentToRecipe = asyncHandler(async (
   res: Response<ApiResponse>,
   next: NextFunction
 ) => {
-  const recipeId = parseInt(req.params.recipeId, 10);
+  const recipeId = parseInt(req.params.id, 10); // Changed from recipeId to id
   const { text } = req.body;
   const authorId = req.user!.id;
 
@@ -31,16 +32,16 @@ export const updateComment = asyncHandler(async (
   res: Response<ApiResponse>,
   next: NextFunction
 ) => {
-  const commentId = parseInt(req.params.commentId, 10);
+  const commentId = parseInt(req.params.id, 10); // This stays the same
   const { text } = req.body;
-  const user = req.user!; // The user trying to make the change
+  const user = req.user!;
 
   const comment = await commentService.findById(commentId);
   if (!comment) {
     throw new NotFoundError("Comment not found");
   }
 
-  // 🚨 PERMISSION CHECK: Only the original author can edit their own comment.
+  // Permission check: Only the original author can edit their own comment
   if (comment.author.id !== user.id) {
     throw new ForbiddenError("You are not authorized to edit this comment");
   }
@@ -60,15 +61,16 @@ export const deleteComment = asyncHandler(async (
   res: Response<ApiResponse>,
   next: NextFunction
 ) => {
-  const commentId = parseInt(req.params.commentId, 10);
-  const user = req.user!; 
+  const commentId = parseInt(req.params.id, 10);
+  const user = req.user!;
 
   const comment = await commentService.findById(commentId);
   if (!comment) {
     throw new NotFoundError("Comment not found");
   }
 
-  if (comment.author.id !== user.id && user.role !== 'admin') {
+  // Permission check: Author or admin can delete
+  if (comment.author.id !== user.id && user.role !== 'admin' && user.role !== 'super_admin') {
     throw new ForbiddenError("You are not authorized to delete this comment");
   }
 

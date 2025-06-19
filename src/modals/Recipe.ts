@@ -40,9 +40,9 @@ export class Recipe {
 
   @UpdateDateColumn()
   updated_at!: Date;
-   @OneToMany(() => Like, like => like.recipe)
-  likes!: Like[];
+  @OneToMany(() => Like, like => like.recipe, { eager: true })
+likes!: Like[];
 
-  @OneToMany(() => Comment, comment => comment.recipe)
-  comments!: Comment[];
+@OneToMany(() => Comment, comment => comment.recipe, { eager: true })
+comments!: Comment[];
 }

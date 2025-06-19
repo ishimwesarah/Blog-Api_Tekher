@@ -1,7 +1,8 @@
 import { AppDataSource } from '../config/database';
-import { User } from '../modals/user';
+import { User, UserRole } from '../modals/user';
 import bcrypt from "bcrypt";
-import { NotFoundError } from '../utils/errors';
+import { ConflictError, NotFoundError } from '../utils/errors';
+import { generateAccountSetupToken } from '../utils/jwt';
 
 export class UserService {
   private userRepository = AppDataSource.getRepository(User);
@@ -41,5 +42,25 @@ async update(id: number, updateData: Partial<User>): Promise<User> {
   async delete(id: number): Promise<boolean> {
     const result = await this.userRepository.delete(id);
     return result.affected ? result.affected > 0 : false;
+  }
+    async createInvitation(username: string, email: string, role: UserRole): Promise<{ newUser: User, setupToken: string }> {
+    const existingUser = await this.userRepository.findOneBy({ email });
+    if (existingUser) {
+      throw new ConflictError("A user with this email already exists.");
+    }
+    
+    // Create the user object. Note that `password` is not provided.
+    let newUser = this.userRepository.create({ username, email, role, isVerified: false });
+    // Save it first to get an ID
+    newUser = await this.userRepository.save(newUser);
+    
+    // Generate a setup token that includes the new user's ID
+    const setupToken = generateAccountSetupToken({ userId: newUser.id, email: newUser.email });
+    newUser.accountSetupToken = setupToken; // Store the token
+    
+    // Save the user again with the token
+    await this.userRepository.save(newUser);
+    
+    return { newUser, setupToken };
   }
 }

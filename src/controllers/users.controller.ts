@@ -5,11 +5,14 @@ import {
   UpdateUserInput, 
   GetUserByIdInput, 
   SearchUsersInput, 
-  DeleteUserInput 
+  DeleteUserInput, 
+  InviteUserInput,
+  UpdateMyProfileInput
 } from '../schemas/user.schemas';
 import { ChangeRoleInput } from '../schemas/user.schemas';
 import { AuthenticatedRequest, ApiResponse } from '../types/common.types';
 import { NotFoundError, ConflictError } from '../utils/errors';
+import { sendAccountSetupEmail } from '../utils/email';
 
 const userService = new UserService();
 
@@ -70,13 +73,10 @@ export const updateUser = asyncHandler(async (
   const { id } = req.params;
   const updateData = req.body;
 
-  // Check if user exists
   const existingUser = await userService.findById(id);
   if (!existingUser) {
     throw new NotFoundError('User');
   }
-
-  // Check email uniqueness if email is being updated
   if (updateData.email && updateData.email !== existingUser.email) {
     const userWithEmail = await userService.findByEmail(updateData.email);
     if (userWithEmail) {
@@ -124,12 +124,72 @@ export const changeUserRole = asyncHandler(async (
   const { id } = req.params;
   const { role } = req.body;
 
-  // The service just needs a generic update method.
+  
   const updatedUser = await userService.update(parseInt(id), { role });
 
   res.status(200).json({
     success: true,
     message: "User role updated successfully",
     data: { user: updatedUser },
+  });
+});
+export const inviteUser = asyncHandler(async (
+  req: AuthenticatedRequest & InviteUserInput, 
+  res: Response<ApiResponse>,
+  next: NextFunction
+) => {
+  const { username, email, role } = req.body;
+
+  const { newUser, setupToken } = await userService.createInvitation(username, email, role);
+  const setupLink = `${process.env.MOBILE_APP_URL_SCHEME}setup-account/${setupToken}`;
+  console.log("--- ACCOUNT SETUP TOKEN ---");
+console.log(setupToken);
+
+  await sendAccountSetupEmail(email, setupLink);
+
+  res.status(201).json({
+    success: true,
+    message: `Invitation sent successfully to ${email}.`,
+  });
+});
+
+export const updateMyProfile = asyncHandler(async (
+  req: AuthenticatedRequest, // We remove the Zod type since we removed the middleware
+  res: Response<ApiResponse>
+) => {
+  const userId = req.user!.id;
+  const updateData = req.body; // Contains username and bio
+
+  // --- ✅ HANDLE THE UPLOADED FILE ---
+  // If the user uploaded a new profile picture, its Cloudinary URL will be in req.file.path.
+  if (req.file) {
+    updateData.profilePictureUrl = req.file.path;
+  }
+
+  // Pass the combined data to the service.
+  const updatedUser = await userService.update(userId, updateData);
+
+  res.status(200).json({
+    success: true,
+    message: "Profile updated successfully",
+    data: { user: updatedUser },
+  });
+});
+export const getMyProfile = asyncHandler(async (
+  req: AuthenticatedRequest,
+  res: Response<ApiResponse>
+) => {
+  
+  const userId = req.user!.id;
+
+  const freshUser = await userService.findById(userId);
+
+  if (!freshUser) {
+    throw new NotFoundError("User associated with this token could not be found.");
+  }
+  res.status(200).json({
+    success: true,
+    message: "Profile retrieved successfully",
+    data: { user: freshUser },
   });
 });

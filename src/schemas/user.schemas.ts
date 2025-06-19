@@ -58,6 +58,40 @@ export const changeRoleSchema = z.object({
     role: z.enum(['user', 'admin']), // A super_admin can only assign 'user' or 'admin' roles
   }),
 });
+export const inviteUserSchema = z.object({
+  body: z.object({
+    username: nameSchema,
+    email: emailSchema,
+    // The role can only be 'user' or 'admin'. A super admin cannot create another super admin.
+    role: z.enum(['user', 'admin'], {
+      errorMap: () => ({ message: "Role must be either 'user' or 'admin'." })
+    }),
+  }),
+});
+export const updateMyProfileSchema = z.object({
+  body: z.object({
+    username: z.string().min(2, "Username is too short").optional(),
+    bio: z.string().max(200, "Bio cannot be longer than 200 characters").nullable().optional(),
+  }),
+});
+export type UpdateMyProfileInput = z.infer<typeof updateMyProfileSchema>;
+
+
+export type InviteUserInput = z.infer<typeof inviteUserSchema>;
+
+
+
+export const setupAccountSchema = z.object({
+  params: z.object({
+    token: z.string().min(1, 'A setup token is required.'),
+  }),
+  body: z.object({
+    newPassword: passwordSchema, 
+  }),
+});
+
+
+export type SetupAccountInput = z.infer<typeof setupAccountSchema>;
 export type ChangeRoleInput = z.infer<typeof changeRoleSchema>;
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;

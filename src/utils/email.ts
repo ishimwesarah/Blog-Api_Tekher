@@ -1,212 +1,109 @@
-import { createTransporter } from "../config/mail-transport";
 import nodemailer from 'nodemailer';
 
+// This is our central, reusable function to create the Gmail transporter.
+const createGmailTransporter = () => {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER, // Your full gmail address from .env
+      pass: process.env.EMAIL_PASS, // Your 16-character Google App Password
+    },
+  });
+};
+
+// --- This is your existing function for public signup verification ---
 export async function sendVerificationEmail(email: string, link: string) {
-  const transporter = await createTransporter();
+  const transporter = createGmailTransporter();
 
   await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+    from: `"Recipe Book App" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Please Confirm Your Email Address',
+    // --- ✅ Using a proper <a> tag for the link ---
     html: `
-      <div style="
-        font-family: Arial, sans-serif; 
-        background-color: #f5f5f5; 
-        padding: 40px 0;
-      ">
-        <div style="
-          max-width: 600px; 
-          margin: auto; 
-          background: #fff; 
-          border-radius: 8px; 
-          box-shadow: 0 0 10px rgba(0,0,0,0.1); 
-          padding: 30px;
-        ">
-          <h2 style="color: #4CAF50; text-align: center;">Welcome to Our Platform!</h2>
-          
-          <p style="font-size: 16px; color: #333;">Hi there,</p>
-
-          <p style="font-size: 16px; color: #333;">
-            Thank you for signing up. Please confirm your email address by clicking the button below:
-          </p>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${link}" target="_blank" style="
-              background-color: #4CAF50;
-              color: white;
-              padding: 14px 28px;
-              text-decoration: none;
-              font-size: 16px;
-              border-radius: 5px;
-              display: inline-block;
-            ">
-              Verify Email
-            </a>
-          </div>
-
-          <p style="font-size: 14px; color: #555;">
-            If you didn’t create an account, you can safely ignore this message.
-          </p>
-
-          <p style="font-size: 14px; color: #999;">
-            This link is valid for 24 hours.
-          </p>
-
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
-
-          <p style="font-size: 14px; color: #aaa; text-align: center;">
-            &copy; ${new Date().getFullYear()} Sarah App. All rights reserved.
-          </p>
+      <div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6;">
+        <h2 style="color: #4CAF50;">Welcome to Recipe Book!</h2>
+        <p>Thank you for signing up. Please click the button below to verify your email address.</p>
+        <div style="margin: 30px 0; text-align: center;">
+          <a href="${link}" target="_blank" style="background-color: #4CAF50; color: white; padding: 14px 25px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+            Verify Email Address
+          </a>
         </div>
+        <p>This link is valid for 24 hours.</p>
       </div>
     `,
   });
 }
 
+// --- This is your function for password resets ---
 export const sendResetPasswordEmail = async (email: string, resetLink: string) => {
-  const transporter = await createTransporter();
+  const transporter = createGmailTransporter();
 
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
+  await transporter.sendMail({
+    from: `"Recipe Book App" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Reset Your Password',
+    // --- ✅ Using a proper <a> tag for the link ---
     html: `
-      <div style="
-        font-family: Arial, sans-serif; 
-        background-color: #f5f5f5; 
-        padding: 40px 0;
-      ">
-        <div style="
-          max-width: 600px; 
-          margin: auto; 
-          background: #fff; 
-          border-radius: 8px; 
-          box-shadow: 0 0 10px rgba(0,0,0,0.1); 
-          padding: 30px;
-        ">
-          <h2 style="color: #ff6f61; text-align: center;">Reset Your Password</h2>
-
-          <p style="font-size: 16px; color: #333;">Hello,</p>
-
-          <p style="font-size: 16px; color: #333;">
-            We received a request to reset your password. If this was you, click the button below to proceed:
-          </p>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetLink}" target="_blank" style="
-              background-color: #ff6f61;
-              color: white;
-              padding: 14px 28px;
-              text-decoration: none;
-              font-size: 16px;
-              border-radius: 5px;
-              display: inline-block;
-            ">
-              Reset Password
-            </a>
-          </div>
-
-          <p style="font-size: 14px; color: #555;">
-            If you did not request a password reset, no action is needed. You can safely ignore this message.
-          </p>
-
-          <p style="font-size: 14px; color: #999;">
-            This link will expire in 15 minutes for security purposes.
-          </p>
-
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
-
-          <p style="font-size: 14px; color: #aaa; text-align: center;">
-            &copy; ${new Date().getFullYear()} Sarah App. All rights reserved.
-          </p>
+      <div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6;">
+        <h2 style="color: #f44336;">Password Reset Request</h2>
+        <p>We received a request to reset your password. If this was you, click the button below to proceed.</p>
+        <div style="margin: 30px 0; text-align: center;">
+          <a href="${resetLink}" target="_blank" style="background-color: #f44336; color: white; padding: 14px 25px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+            Reset Your Password
+          </a>
         </div>
+        <p>This link will expire in 15 minutes.</p>
       </div>
     `,
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error('Failed to send email:', error);
-    throw new Error('Failed to send reset password email. Please try again later.');
-  }
+  });
 };
+
+// --- This is the new function for invited users ---
+export const sendAccountSetupEmail = async (to: string, setupLink: string) => {
+  const transporter = createGmailTransporter();
+
+  await transporter.sendMail({
+    from: `"Recipe Book App" <${process.env.EMAIL_USER}>`,
+    to: to,
+    subject: 'Complete Your Account Setup for Recipe Book',
+    // --- ✅ Using a proper <a> tag for the link ---
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6;">
+        <h1>Welcome to Recipe Book!</h1>
+        <p>An administrator has created an account for you.</p>
+        <p>To complete your setup and create your password, please click the link below:</p>
+        <div style="margin: 30px 0; text-align: center;">
+            <a href="${setupLink}" target="_blank" style="background-color: #2196F3; color: white; padding: 14px 25px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+                Set Up My Account
+            </a>
+        </div>
+        <p>This link will expire in 7 days.</p>
+      </div>
+    `,
+  });
+};
+
+
+// You likely have this function as well, it can be removed if unused or kept for other purposes.
 
 
 export async function sendEmailVerifiedConfirmation(email: string) {
-  const transporter = await createTransporter();
+  const transporter = createGmailTransporter(); // Use our central function
 
   await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+    from: `"Recipe Book App" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Email Verified Successfully',
     html: `
-      <div style="
-        font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
-        padding: 40px 0;
-      ">
-        <div style="
-          max-width: 600px;
-          margin: auto;
-          background: #fff;
-          border-radius: 8px;
-          box-shadow: 0 0 10px rgba(0,0,0,0.1);
-          padding: 30px;
-        ">
-          <h2 style="color: #4CAF50; text-align: center;">Email Verified</h2>
-
-          <p style="font-size: 16px; color: #333;">
-            Hello,
-          </p>
-
-          <p style="font-size: 16px; color: #333;">
-            Your email has been successfully verified. You can now access all features and continue using our services without any limitations.
-          </p>
-
-          <p style="font-size: 16px; color: #333;">
-            If you have any questions or need assistance, feel free to reach out to our support team.
-          </p>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.FRONTEND_URL}" target="_blank" style="
-              background-color: #4CAF50;
-              color: white;
-              padding: 14px 28px;
-              text-decoration: none;
-              font-size: 16px;
-              border-radius: 5px;
-              display: inline-block;
-            ">
-              Go to Dashboard
-            </a>
-          </div>
-
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
-
-          <p style="font-size: 14px; color: #aaa; text-align: center;">
-            &copy; ${new Date().getFullYear()} Sarah App. All rights reserved.
-          </p>
-        </div>
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2>Email Verified!</h2>
+        <p>Your email has been successfully verified. Welcome aboard!</p>
       </div>
     `,
   });
 }
-export const sendEmail = async (to: string, subject: string, text: string) => {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER!,
-      pass: process.env.EMAIL_PASS!,
-    },
-  });
 
-  await transporter.sendMail({
-    from: `"No Reply" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    text,
-  });
-};
+
 
 

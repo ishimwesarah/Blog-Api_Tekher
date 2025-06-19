@@ -37,18 +37,37 @@ export class PostService {
     return await this.postRepo.findOne({ where: { id }, relations: ['author'] });
   }
 
- async updatePost(id: number, data: Partial<Post>, user: User) {
+  async updatePost(id: number, data: Partial<Post>, user: User): Promise<Post> {
+    
     const post = await this.getPostById(id);
     if (!post) {
       throw new NotFoundError("Post not found");
     }
-    
-    if (post.author.id !== user.id && user.role !== 'admin') {
+
+    // 2. Permission Check.
+    if (post.author.id !== user.id && user.role !== 'admin' && user.role !== 'super_admin') {
       throw new ForbiddenError("You are not authorized to update this post");
     }
 
-   
-    Object.assign(post, data);
+    // 3. --- EXPLICITLY ASSIGN EACH PROPERTY ---
+    // This is more reliable than Object.assign or repository.merge for complex types.
+    
+    // If the incoming data has a new title, update it.
+    if (data.title) {
+      post.title = data.title;
+    }
+
+    // If the incoming data has a new hero image URL, update it.
+    if (data.imageUrl) {
+      post.imageUrl = data.imageUrl;
+    }
+
+    // If the incoming data has new content (the JSON array), update it.
+    if (data.content) {
+      post.content = data.content;
+    }
+    
+    // 4. Save the fully updated post object back to the database.
     return await this.postRepo.save(post);
   }
 

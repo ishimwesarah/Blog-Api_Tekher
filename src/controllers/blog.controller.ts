@@ -1,7 +1,7 @@
 // src/controllers/post.controller.ts
 import { Request, Response } from "express";
 import { PostService } from "../services/blog.service";
-import { sendEmail } from "../utils/email";
+
 import { AuthenticatedRequest } from "../types/common.types";
 
 const postService = new PostService();
@@ -24,7 +24,7 @@ export const createPost = async (req: AuthenticatedRequest, res: Response) => {
     const imageUrl = req.file.path;
     const post = await postService.createPost(title, content, user, imageUrl);
     
-    await sendEmail(user.email, "New Post Created", `Your post "${title}" has been created.`);
+    
 
     res.status(201).json({
       status: "success",

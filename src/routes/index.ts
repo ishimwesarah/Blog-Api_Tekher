@@ -13,7 +13,7 @@ router.use('/auth', authRoutes);
 router.use('/posts', postRoutes);
 router.use('/recipes', recipeRoutes);
 // router.use('/like', likeRoutes)
-router.use('/comment', commentRoutes)
+router.use('/comments', commentRoutes)
 router.use('/shopping', shoppingRoutes)
 
 export default router;

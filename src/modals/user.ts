@@ -16,10 +16,14 @@ export class User {
   @Column({ type: 'enum', enum: ['user', 'admin', 'super_admin'], default: 'user' })
   role!: UserRole;
 
-  @Column({ length: 255 })
+  @Column({ length: 255, nullable: true  })
   password!: string;
   @Column({ type: 'text', nullable: true })
   bio?: string;
+  @Column({ nullable: true, select: false }) 
+  accountSetupToken?: string;
+   @Column({ type: 'varchar', length: 255, nullable: true })
+  profilePictureUrl?: string;
 
   @Column({ default: false })    
   isVerified!: boolean;

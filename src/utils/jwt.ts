@@ -43,3 +43,9 @@ export function verifyVerifyToken(token: string): VerifyPayload {
   }
   return jwt.verify(token, process.env.JWT_SECRET) as VerifyPayload;
 }
+
+export const generateAccountSetupToken = (payload: { userId: number, email: string }): string => {
+  return jwt.sign(payload, process.env.JWT_SETUP_SECRET!, {
+    expiresIn: '7d',
+  });
+};
