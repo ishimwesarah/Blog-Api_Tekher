@@ -141,7 +141,7 @@ export const inviteUser = asyncHandler(async (
   const { username, email, role } = req.body;
 
   const { newUser, setupToken } = await userService.createInvitation(username, email, role);
-  const setupLink = `${process.env.MOBILE_APP_URL_SCHEME}setup-account/${setupToken}`;
+  const setupLink = `${process.env.FRONTEND_URL}setup-account/${setupToken}`;
   console.log("--- ACCOUNT SETUP TOKEN ---");
 console.log(setupToken);
 

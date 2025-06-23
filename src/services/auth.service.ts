@@ -35,26 +35,26 @@ export class AuthService {
     
     let payload: { userId: number; email: string };
     try {
-      // Use the specific secret for setup tokens to verify it
+      
       payload = jwt.verify(token, process.env.JWT_SETUP_SECRET!) as { userId: number; email: string };
     } catch (error) {
-      // This will catch expired or malformed tokens
+    
       throw new UnauthorizedError("This account setup link is invalid or has expired.");
     }
 
-    // 2. Find the user by the ID from the token's payload
+   
     const user = await this.userRepository.findOneBy({ id: payload.userId });
 
-    // 3. Security Checks
+    
     if (!user) {
       throw new NotFoundError("The user associated with this link could not be found.");
     }
     if (user.isVerified || user.password) {
-      // This prevents the link from being used to reset a password on an already active account
+    
       throw new UnauthorizedError("This account has already been set up.");
     }
     if (user.accountSetupToken !== token) {
-      // This ensures the token hasn't been invalidated or replaced
+      
       throw new UnauthorizedError("This setup link has already been used or is outdated.");
     }
 

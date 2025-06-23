@@ -6,7 +6,7 @@ const createGmailTransporter = () => {
     service: 'gmail',
     auth: {
       user: process.env.EMAIL_USER, // Your full gmail address from .env
-      pass: process.env.EMAIL_PASS, // Your 16-character Google App Password
+      pass: process.env.EMAIL_PASS, 
     },
   });
 };
